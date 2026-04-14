@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Task Manager</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      width: 350px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 15px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    ul {
+      margin-top: 20px;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f3f5;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+    }
+
+    li button {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    li button:hover {
+      background: #e60000;
+    }
+
+    .empty {
+      text-align: center;
+      color: #888;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h2>📝 Task Manager</h2>
+
+    <div class="input-group">
+      <input id="taskInput" placeholder="Enter task..." />
+      <button onclick="addTask()">Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+    <div id="emptyMessage" class="empty"></div>
+  </div>
+
+  <script>
+    const API = "http://localhost:5000";
+
+    async function fetchTasks() {
+      const res = await fetch(API + "/tasks");
+      const data = await res.json();
+
+      const list = document.getElementById("taskList");
+      const emptyMsg = document.getElementById("emptyMessage");
+
+      list.innerHTML = "";
+
+      if (data.length === 0) {
+        emptyMsg.innerText = "No tasks yet 👀";
+        return;
+      } else {
+        emptyMsg.innerText = "";
+      }
+
+      data.forEach(task => {
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+          <span>${task.title}</span>
+          <button onclick="deleteTask(${task.id})">✅</button>
+        `;
+
+        list.appendChild(li);
+      });
+    }
+
+    async function addTask() {
+      const input = document.getElementById("taskInput");
+
+      if (!input.value.trim()) return;
+
+      await fetch(API + "/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title: input.value })
+      });
+
+      input.value = "";
+      fetchTasks();
+    }
+
+    async function deleteTask(id) {
+      await fetch(API + `/tasks/${id}`, {
+        method: "DELETE"
+      });
+
+      fetchTasks();
+    }
+
+    fetchTasks();
+  </script>
+
+</body>
+</html>
