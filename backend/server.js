@@ -1,4 +1,5 @@
 // backend/server.js
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -7,29 +8,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "tasks_db"
-});
 
-db.connect(err => {
-  if (err) {
-    console.error("DB connection failed:", err);
-  } else {
-    console.log("Connected to MySQL");
-  }
-});
+let db;
 
-// Create task
-app.post("/tasks", (req, res) => {
-  const { title } = req.body;
-  db.query("INSERT INTO tasks (title) VALUES (?)", [title], (err) => {
-    if (err) return res.status(500).send(err);
-    res.send("Task added");
+function connectWithRetry() {
+  db = mysql.createConnection({
+    host: "db",
+    user: "root",
+    password: "password",
+    database: "tasks_db"
   });
-});
+
+  db.connect((err) => {
+    if (err) {
+      console.log("DB not ready, retrying in 5 seconds...");
+      setTimeout(connectWithRetry, 5000);
+    } else {
+      console.log("Connected to MySQL");
+    }
+  });
+}
+
+connectWithRetry();
 
 // Get tasks
 app.get("/tasks", (req, res) => {
