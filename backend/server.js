@@ -31,6 +31,16 @@ function connectWithRetry() {
 
 connectWithRetry();
 
+// Create task
+app.post("/tasks", (req, res) => {
+  const { title } = req.body;
+
+  db.query("INSERT INTO tasks (title) VALUES (?)", [title], (err) => {
+    if (err) return res.status(500).send(err);
+    res.send("Task added");
+  });
+});
+
 // Get tasks
 app.get("/tasks", (req, res) => {
   db.query("SELECT * FROM tasks", (err, results) => {
