@@ -22,6 +22,14 @@ This project is built to implement and demonstrate DevOps practices including co
 
 ---
 
+## 🖥️ Application UI
+
+![Task Manager UI](images/app_frontend.png)
+![Task Manager Backend](images/app_backend.png)
+![AWS ECR](images/aws_ecr.png)
+
+---
+
 ## 🐳 Phase 1: Containerization (Completed ✅)
 
 - Built a 3-tier application
